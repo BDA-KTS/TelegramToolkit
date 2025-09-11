@@ -10,16 +10,17 @@ The method offers a Telegram data enrichment toolkit that enhances the Telegram 
 
 **Usecase 1:** Upon finding the Telegram Toolkit in the Methods Hub, John explores its features and capabilities. He discovers functionalities such as entity identification and message chain generation, which are relevant to his research on disinformation in Telegram channels. John obtains a dataset of messages collected from Telegram channels using appropriate data collection methods. He ensures that the dataset covers the relevant period corresponding to the US Presidential Elections and contains messages from channels known for spreading political information and disinformation. John imports the collected dataset into the Telegram Toolkit for analysis. He verifies the integrity and format of the data to ensure compatibility with the Toolkit's processing algorithms. Using the Toolkit's entity identification feature, John identifies key entities related to the Presidential Elections within the dataset. Then, he creates the message chains; now he can investigate how disinformation propagates through message forwarding chains and explores the dynamics of information diffusion within the network.
 
-**Usecase 2:** Sarah designs her research study to explore the social dynamics within Telegram communities, focusing on the role of message-forwarding networks in shaping community boundaries and subgroup formations. Sarah collects a dataset of messages from a diverse range of Telegram channels representing various communities and topics of interest. She ensures that the dataset covers a sufficient period to capture the evolution of community dynamics. Sarah uses the Telegram Toolkit to extract the channel-to-channel graph. She can now identify central nodes, clusters, and subgroups within the networks to understand how information flows and circulates within the communities.
+**Usecase 2:** Sarah designs her research study to explore the socia l dynamics within Telegram communities, focusing on the role of message-forwarding networks in shaping community boundaries and subgroup formations. Sarah collects a dataset of messages from a diverse range of Telegram channels representing various communities and topics of interest. She ensures that the dataset covers a sufficient period to capture the evolution of community dynamics. Sarah uses the Telegram Toolkit to extract the channel-to-channel graph. She can now identify central nodes, clusters, and subgroups within the networks to understand how information flows and circulates within the communities.
 
 ## Input Data
 
-Below is a sample of the dataset provided under the *data/* directory:
 
-``` jsonl
-{"id": 1, "date": "2023-01-01T12:00:00", "channel_id": 12345, "message": "Happy New Year!", "entities": [{"type": "hashtag", "offset": 0, "length": 4}]}
-{"id": 2, "date": "2023-01-01T12:05:00", "channel_id": 12346, "message": "Check out this amazing news!", "entities": [{"type": "url", "offset": 18, "length": 4}]}
-{"id": 3, "date": "2023-01-01T12:10:00", "channel_id": 12345, "message": "Forwarded message", "forwarded_from": {"channel_id": 12346, "message_id": 2}}
+Below is a simple sample of the dataset provided under the *data/* directory (each line is a JSON object):
+
+```jsonl
+{"id": 1, "date": "2023-01-01T12:00:00", "channel_id": 100, "message": "Happy New Year! #2023", "entities": [{"type": "hashtag", "offset": 18, "length": 5}]}
+{"id": 2, "date": "2023-01-01T12:01:00", "channel_id": 101, "message": "Visit our site: https://example.com", "entities": [{"type": "url", "offset": 17, "length": 19}]}
+{"id": 3, "date": "2023-01-01T12:02:00", "channel_id": 102, "message": "Forwarded from channel 100", "forwarded_from": {"channel_id": 100, "message_id": 1}}
 ```
 
 **Note** - We use JSONL (JSON Lines) rather than JSON , since it allows streaming and processing large datasets line-by-line, making it memory-efficient and easier to handle incrementally.
@@ -39,19 +40,53 @@ If interested the user can feed the TelegramToolkit with the data collected by [
 
 ## Output Data
 
-A sample output (using the data under *data/*) is made available with this repository.
 
--   *sample_output_entities/* contains all the messages with their entities that have been made explicit.
+Sample outputs (using the data under *data/*) are provided for clarity:
 
--   *sample_output/* contains:
+- **Entities Output** (`sample_output_entities/`):
+  - Each message with its extracted entities made explicit.
+  - **Example:**
+    ```jsonl
+    {"id": 1, "entities": [{"type": "hashtag", "text": "#2023"}]}
+    {"id": 2, "entities": [{"type": "url", "text": "https://example.com"}]}
+    ```
 
-    -   *mygraph.gml* the channel-to-channel graph with information about the times a destination channel posted a message from a source channel.
+- **Channel-to-Channel Graph** (`sample_output/mygraph.gml`):
+  - Shows which channels forward messages to others.
+  - **Example (GML format):**
+    ```
+    graph [
+      node [ id 100 label "Channel 100" ]
+      node [ id 102 label "Channel 102" ]
+      edge [ source 100 target 102 count 1 ]
+    ]
+    ```
 
-    -   *my_message_chain.csv* the CSV file containing information about the *source message id*, *source channel id*, *destination message id*, *destination channel id*, *time*, and *message text*.
+- **Message Chain CSV** (`sample_output/my_message_chain.csv`):
+  - Shows how messages are forwarded between channels.
+  - **Example:**
+    ```csv
+    source_message_id,source_channel_id,dest_message_id,dest_channel_id,time,message_text
+    1,100,3,102,2023-01-01T12:02:00,Forwarded from channel 100
+    ```
 
-    -   *entity_frequency.json* an example file of entity frequency computed on the whole sample data. Only entities with a frequency of at least 100 appear in the file.
+- **Entity Frequency (Whole Data)** (`sample_output/entity_frequency.json`):
+  - Counts of each entity type across all messages.
+  - **Example:**
+    ```json
+    {
+      "#2023": 1,
+      "https://example.com": 1
+    }
+    ```
 
-    -   *entity_frequency_channels.jsonl* an example output file of entity frequency over channels. Only entities that appear at least 100 times in a single channel appear in the file.
+- **Entity Frequency by Channel** (`sample_output/entity_frequency_channels.jsonl`):
+  - Counts of each entity type per channel.
+  - **Example:**
+    ```jsonl
+    {"channel_id": 100, "entities": {"#2023": 1}}
+    {"channel_id": 101, "entities": {"https://example.com": 1}}
+    ```
 
 ## Hardware Requirements
 
@@ -121,6 +156,15 @@ options:
                         It only works with either '-efc' or '--entity-frequency-channel' option. 
                         Default: entity_frequency_over_channels
 ```
+
+## Usage examples
+- Resolve entities only:
+  `python TelegramToolkit.py -i data/ -o out/ -re`
+- Build channel graph and save as `mygraph.gml`:
+  `python TelegramToolkit.py -i data/ -o out/ -ccg -gn mygraph`
+- Compute entity frequencies (type-aware):
+  `python TelegramToolkit.py -i data/ -o out/ -ef -eft -efs entity_frequency`
+
 
 ## Technical Details
 

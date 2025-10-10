@@ -4,7 +4,7 @@
 
 The method offers a Telegram data enrichment toolkit that enhances the Telegram messages by uncovering implicit information, otherwise not directly available through the platform. It reveals the channel connections i.e., channel to channel graph, provide message forwarding chain and extracts entities across channels. The method reads raw Telegram messages as JSON and extracts the additional information aggregated into new JSON files. The nature of messages on the platform and their penetration across multiple channels can address interesting research questions.
 
-**Output** sample from *entity_frequency.json* ![](images/output-entity-freq.png)
+<!-- **Output** sample from *entity_frequency.json* ![](images/output-entity-freq.png) -->
 
 ## Use Cases
 
@@ -196,7 +196,7 @@ The Telegram Toolkit is designed to provide enriched data and features to addres
 
 6.  *Disinformation and Misinformation Tracking*: How can the tracking of message propagation pathways assist in unraveling the dynamics of misinformation dissemination, rumor amplification, and collective sensemaking processes within Telegram channels, and what strategies can be devised to foster critical thinking and information literacy in online communities?
 
-![alt text](images/output-channel-entity-freq.png) **sample output** from *channel_entity_freq.json*
+<!-- ![alt text](images/output-channel-entity-freq.png) **sample output** from *channel_entity_freq.json* -->
 
 ## Disclaimer
 
@@ -204,4 +204,4 @@ The Telegram Toolkit is designed to work with .jsonl files where each line of a 
 
 ## Contact Details
 
-For further queries, please contact [Susmita.Gangopadhyay\@gesis.org](Susmita.Gangopadhyay@gesis.org)
+For further queries, please contact <Susmita.Gangopadhyay@gesis.org>
